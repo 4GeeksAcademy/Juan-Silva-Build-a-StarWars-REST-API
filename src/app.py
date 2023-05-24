@@ -43,7 +43,6 @@ def sitemap():
 
 # GET
 
-
 @app.route('/user', methods=['GET'])
 def get_users():
 
@@ -154,6 +153,43 @@ def add_favorite_people():
     return jsonify(response_body),200
   
 # DELETE
+@app.route('/favorite/user/people', methods= ['DELETE'])
+def delete_favorite_people():
+
+     data = request.get_json()
+     people_id = data['people_id']
+     user_id = data['user_id']
+
+     user = User.query.get(user_id)
+     people = People.query.get(people_id)
+     
+     delete_favorite = Favorite.query.filter_by(user=user, people=people).first()
+     
+     if delete_favorite is None:
+        return jsonify({'msg' : 'No favourite found'}), 404
+     
+     db.session.delete(delete_favorite)
+     db.session.commit()
+     
+     response_body = {'msg' : 'Su personaje favorito ha sido eliminado'}, 200
+     return jsonify(response_body)
+
+@app.route('/favorite/user/<int:user_id>/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id,user_id):
+
+    user = User.query.get(user_id)
+    planet = Planet.query.get(planet_id)
+
+    delete_favorite = Favorite.query.filter_by(user=user, planet=planet).first()
+
+    if delete_favorite is None :
+        return jsonify({'msg' : 'No favorite found'}), 404
+    
+    db.session.delete(delete_favorite)
+    db.session.commit()
+
+    response_body = {'msg' : 'Su planeta favorito ha sido eliminado'} , 200
+    return jsonify(response_body)
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
